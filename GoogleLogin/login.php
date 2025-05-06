@@ -1,8 +1,17 @@
 <?php
 require '../Api/vendor/autoload.php';
+require '../includes/auth.php';
+require 'config.php';
 
 session_start();
 
+// ถ้ามีการ login อยู่แล้วให้ไปที่หน้า profile
+if (checkAuth($pdo)) {
+    header('Location: profile.php');
+    exit();
+}
+
+// ...existing Google Client code...
 $client = new Google\Client();
 $client->setClientId('441539623798-k1kksnt8aj8e5gch9gjvm96soon7kj1a.apps.googleusercontent.com');
 $client->setClientSecret('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');

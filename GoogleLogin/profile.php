@@ -1,9 +1,13 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_email'])) {
+require '../includes/auth.php';
+require 'config.php';
+
+if (!checkAuth($pdo)) {
     header('Location: login.php');
     exit();
 }
+
 
 ?>
 
