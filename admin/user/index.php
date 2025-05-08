@@ -1,8 +1,8 @@
 <?php
 session_start();
-require '../../GoogleLogin/config.php';
+require '../config/db.php'; // แก้ path ให้ถูกต้อง
 
-// ตรวจสอบว่าเป็น admin
+// แก้เงื่อนไขการตรวจสอบ admin
 if (!isset($_SESSION['admin_id'])) {
     header('Location: ../login.php');
     exit();

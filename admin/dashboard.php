@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../GoogleLogin/config.php';
+require 'config/db.php';
 
 // ตรวจสอบว่าเป็น admin
 if (!isset($_SESSION['admin_id'])) {
@@ -26,10 +26,16 @@ if (!isset($_SESSION['admin_id'])) {
                     <li class="nav-item">
                         <a class="nav-link" href="user/index.php">จัดการผู้ใช้</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="promotions/index.php">จัดการโปรโมชั่น</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="bookings/index.php">จัดการการจอง</a>
+                    </li>
                     <!-- เพิ่มเมนูอื่นๆ ตามต้องการ -->
                 </ul>
             </div>
-            <a href="../GoogleLogin/logout.php" class="btn btn-danger">Logout</a>
+            <a href="logout.php" class="btn btn-danger">Logout</a>
         </div>
     </nav>
 

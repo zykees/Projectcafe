@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../GoogleLogin/config.php';
+require 'config/db.php';
 
 // ถ้า login แล้วให้ไปที่ dashboard
 if (isset($_SESSION['admin_id'])) {
