@@ -1,16 +1,23 @@
 <?php
 session_start();
-require '../config/db.php'; // แก้ path ให้ถูกต้อง
+require '../config/db.php';
 
-// แก้เงื่อนไขการตรวจสอบ admin
 if (!isset($_SESSION['admin_id'])) {
     header('Location: ../login.php');
     exit();
 }
 
-// ดึงข้อมูลผู้ใช้ทั้งหมด
-$stmt = $pdo->query("SELECT * FROM users ORDER BY created_at DESC");
-$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt = $pdo->query("
+    SELECT u.*, 
+           COUNT(DISTINCT o.id) as total_orders,
+           COUNT(DISTINCT b.id) as total_bookings
+    FROM users u
+    LEFT JOIN orders o ON u.id = o.user_id
+    LEFT JOIN bookings b ON u.id = b.user_id
+    GROUP BY u.id
+    ORDER BY u.created_at DESC
+");
+$users = $stmt->fetchAll();
 ?>
 
 <!DOCTYPE html>
@@ -26,7 +33,6 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <a class="navbar-brand" href="../dashboard.php">Admin Panel</a>
         </div>
     </nav>
-
     <div class="container mt-4">
         <h2>จัดการผู้ใช้</h2>
         <div class="table-responsive">
@@ -34,26 +40,44 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>รูปโปรไฟล์</th>
                         <th>ชื่อ</th>
                         <th>อีเมล</th>
-                        <th>Line ID</th>
-                        <th>สถานะ</th>
-                        <th>วันที่สร้าง</th>
+                        <th>การเชื่อมต่อ</th>
+                        <th>คำสั่งซื้อ</th>
+                        <th>การจอง</th>
                         <th>จัดการ</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($users as $user): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($user['id']); ?></td>
+                        <td><?php echo $user['id']; ?></td>
+                        <td>
+                            <?php if ($user['picture_url']): ?>
+                                <img src="<?php echo htmlspecialchars($user['picture_url']); ?>" 
+                                     alt="Profile" style="width: 40px; height: 40px; border-radius: 50%;">
+                            <?php endif; ?>
+                        </td>
                         <td><?php echo htmlspecialchars($user['name']); ?></td>
                         <td><?php echo htmlspecialchars($user['email']); ?></td>
-                        <td><?php echo $user['line_id'] ? 'เชื่อมต่อแล้ว' : 'ยังไม่เชื่อมต่อ'; ?></td>
-                        <td><?php echo htmlspecialchars($user['role']); ?></td>
-                        <td><?php echo htmlspecialchars($user['created_at']); ?></td>
                         <td>
-                            <a href="edit.php?id=<?php echo $user['id']; ?>" class="btn btn-sm btn-primary">แก้ไข</a>
-                            <button onclick="deleteUser(<?php echo $user['id']; ?>)" class="btn btn-sm btn-danger">ลบ</button>
+                            <?php if ($user['google_id']): ?>
+                                <span class="badge bg-primary">Google</span>
+                            <?php endif; ?>
+                            <?php if ($user['line_id']): ?>
+                                <span class="badge bg-success">Line</span>
+                            <?php endif; ?>
+                        </td>
+                        <td><?php echo $user['total_orders']; ?></td>
+                        <td><?php echo $user['total_bookings']; ?></td>
+                        <td>
+                            <a href="view.php?id=<?php echo $user['id']; ?>" 
+                               class="btn btn-info btn-sm">ดูรายละเอียด</a>
+                            <a href="edit.php?id=<?php echo $user['id']; ?>" 
+                               class="btn btn-primary btn-sm">แก้ไข</a>
+                            <button onclick="deleteUser(<?php echo $user['id']; ?>)" 
+                                    class="btn btn-danger btn-sm">ลบ</button>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -61,13 +85,5 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </table>
         </div>
     </div>
-
-    <script>
-    function deleteUser(id) {
-        if (confirm('คุณแน่ใจหรือไม่ที่จะลบผู้ใช้นี้?')) {
-            window.location.href = `delete.php?id=${id}`;
-        }
-    }
-    </script>
 </body>
 </html>
