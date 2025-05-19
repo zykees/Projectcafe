@@ -7,7 +7,26 @@ if (!isset($_SESSION['admin_id'])) {
     header('Location: login.php');
     exit();
 }
+$todayBookings = $pdo->query("
+    SELECT COUNT(*) as count, 
+           SUM(total_price) as total 
+    FROM bookings 
+    WHERE DATE(created_at) = CURDATE()
+")->fetch();
 
+$todayOrders = $pdo->query("
+    SELECT COUNT(*) as count, 
+           SUM(total_amount) as total 
+    FROM orders 
+    WHERE DATE(created_at) = CURDATE()
+")->fetch();
+
+$activePromotions = $pdo->query("
+    SELECT COUNT(*) as count 
+    FROM promotions 
+    WHERE status = 'active' 
+    AND CURDATE() BETWEEN start_date AND end_date
+")->fetch();
 // ดึงข้อมูลสถิติเบื้องต้น
 $totalUsers = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
 $totalOrders = $pdo->query("SELECT COUNT(*) FROM orders")->fetchColumn();
