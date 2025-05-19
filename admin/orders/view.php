@@ -9,10 +9,13 @@ if (!isset($_SESSION['admin_id'])) {
 
 // ดึงข้อมูลคำสั่งซื้อและข้อมูลผู้ใช้
 $stmt = $pdo->prepare("
-    SELECT o.*, u.name as user_name, u.email as user_email
-    FROM orders o 
-    JOIN users u ON o.user_id = u.id 
-    WHERE o.id = :id
+    SELECT o.*, u.name as user_name, u.email,
+           SUM(oi.quantity * oi.price) as total_amount
+    FROM orders o
+    LEFT JOIN users u ON o.user_id = u.id
+    LEFT JOIN order_items oi ON o.id = oi.order_id
+    WHERE o.id = ?
+    GROUP BY o.id
 ");
 $stmt->execute([':id' => $_GET['id']]);
 $order = $stmt->fetch();
