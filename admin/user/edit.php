@@ -10,10 +10,16 @@ if (!isset($_SESSION['admin_id'])) {
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $stmt = $pdo->prepare("UPDATE users SET 
-                          name = :name,
-                          role = :role
-                          WHERE id = :id");
+    $stmt = $pdo->prepare("
+    UPDATE users SET
+        name = :name,
+        email = :email,
+        phone = :phone,
+        role = :role,
+        status = :status,
+        updated_at = NOW()
+    WHERE id = :id
+");
     
     $stmt->execute([
         ':name' => $_POST['name'],
@@ -39,18 +45,32 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container mt-4">
-        <h2>แก้ไขข้อมูลผู้ใช้</h2>
-        <form method="POST">
-            <input type="hidden" name="id" value="<?php echo $user['id']; ?>">
-            
-            <div class="mb-3">
-                <label class="form-label">ชื่อ</label>
-                <input type="text" class="form-control" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" required>
-            </div>
-            <button type="submit" class="btn btn-primary">บันทึก</button>
-            <a href="index.php" class="btn btn-secondary">ยกเลิก</a>
-        </form>
-    </div>
+<div class="container mt-4">
+    <h2>แก้ไขข้อมูลผู้ใช้</h2>
+    <form method="POST">
+        <input type="hidden" name="id" value="<?php echo $user['id']; ?>">
+        
+        <div class="mb-3">
+            <label class="form-label">ชื่อ</label>
+            <input type="text" class="form-control" name="name" 
+                   value="<?php echo htmlspecialchars($user['name']); ?>" required>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">สถานะ</label>
+            <select class="form-select" name="role">
+                <option value="user" <?php echo $user['role'] === 'user' ? 'selected' : ''; ?>>
+                    ผู้ใช้ทั่วไป
+                </option>
+                <option value="admin" <?php echo $user['role'] === 'admin' ? 'selected' : ''; ?>>
+                    ผู้ดูแลระบบ
+                </option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">บันทึก</button>
+        <a href="index.php" class="btn btn-secondary">ยกเลิก</a>
+    </form>
+</div>
 </body>
 </html>
